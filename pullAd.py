@@ -31,11 +31,37 @@ def careerbuilder(website):
     for description in jobDescriptor:
         consolidatedDescriptor += description.getText()
     return consolidatedDescriptor
+
+#The simplyhired website currently puts the job descriptions in other windows.
+#Can't pull the job description from the main website. The specific location 
+#of the description needs to be cut from the web address and added to the 
+#new address, where the description can be pulled.
+
+def simplyhired(website):
+    splitAddress = website.split('job=')
+    newAddress = 'https://www.simplyhired.com/job/' + splitAddress[1]
+    adPull = requests.get(newAddress)
+    textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
+    return textPull.find('div', 'viewjob-description').getText()
+
+#Dice.com function.
+
+def dice(website):
+    adPull = requests.get(website)
+    textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
+    return textPull.find('div', 'highlight-black').getText()
+
+
     
 
 if 'indeed' in website:
     jobAd = indeed(website)
 elif 'careerbuilder' in website:
     jobAd = careerbuilder(website)
+elif 'simplyhired' in website:
+    jobAd = simplyhired(website)
+elif 'dice' in website:
+    jobAd = dice(website)
 
 print(jobAd)
+    
