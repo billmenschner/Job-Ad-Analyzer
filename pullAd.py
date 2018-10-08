@@ -9,13 +9,17 @@ import requests, bs4
 website = input('Paste the website of the job ad: ')
 #TODO: Include a check that a website was entered.
 
-#Function for if the website entered is from Indeed. Presently, Indeed uses
-#just the one div class for the job ad description.
+#Function for if the website entered is from Indeed. Indeed has different
+#methods for showing the job description based on where the description comes
+#from (directly from the site or from another site). This code needs to be
+#changed so that both methods return a result. Second type is similar to 
+#simplyhired.
 
 def indeed(website):
     adPull = requests.get(website)
     textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
-    return textPull.find('div', 'jobsearch-JobComponent-description icl-u-xs-mt--md').getText()
+#   return textPull.find('div', 'jobsearch-JobComponent-description icl-u-xs-mt--md').getText()
+    return textPull.find('div', 'vjs-desc').getText()
 
 #Function for careerbuilder ad. Currently, careerbuilder uses the same div class
 #for the job description and job requirements. The requirements section is just:
