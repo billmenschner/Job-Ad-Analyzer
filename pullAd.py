@@ -9,17 +9,18 @@ import requests, bs4
 website = input('Paste the website of the job ad: ')
 #TODO: Include a check that a website was entered.
 
-#Function for if the website entered is from Indeed. Indeed has different
-#methods for showing the job description based on where the description comes
-#from (directly from the site or from another site). This code needs to be
-#changed so that both methods return a result. Second type is similar to 
-#simplyhired.
+#Function for if the website entered is from Indeed. Indeed shows ads inline
+#and has a separate page for the ad. This method should send all ads to the
+#separate page.
 
 def indeed(website):
+    if 'vjk=' in website:
+        splitAddress = website.split('vjk=')
+        website = 'https://www.indeed.com/viewjob?jk=' + splitAddress[1]
     adPull = requests.get(website)
     textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
-#   return textPull.find('div', 'jobsearch-JobComponent-description icl-u-xs-mt--md').getText()
-    return textPull.find('div', 'vjs-desc').getText()
+    return textPull.find('div', 'jobsearch-JobComponent-description icl-u-xs-mt--md').getText()
+#    return textPull.find('div', 'vjs-desc').getText()
 
 #Function for careerbuilder ad. Currently, careerbuilder uses the same div class
 #for the job description and job requirements. The requirements section is just:
@@ -42,9 +43,10 @@ def careerbuilder(website):
 #new address, where the description can be pulled.
 
 def simplyhired(website):
-    splitAddress = website.split('job=')
-    newAddress = 'https://www.simplyhired.com/job/' + splitAddress[1]
-    adPull = requests.get(newAddress)
+    if 'job=' in website:
+        splitAddress = website.split('job=')
+        website = 'https://www.simplyhired.com/job/' + splitAddress[1]
+    adPull = requests.get(website)
     textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
     return textPull.find('div', 'viewjob-description').getText()
 
@@ -54,6 +56,27 @@ def dice(website):
     adPull = requests.get(website)
     textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
     return textPull.find('div', 'highlight-black').getText()
+
+#Monster.com function.
+
+def monster(website):
+    if 'jobid' in website:
+        splitAddress = website.split('jobid=')
+        website = 'https://job-openings.monster.com/' + splitAddress[1]
+    adPull = requests.get(website)
+    textPull=bs4.BeautifulSoup(adPull.text, 'lxml')
+    return textPull.find('div', 'details-content is-preformated').getText()
+
+#Craigslist function.
+
+def craigslist(website):
+    adPull = requests.get(website)
+    textPull = bs4.BeautifulSoup(adPull.text, 'lxml')
+    return textPull.find('section', id='postingbody').getText()
+    
+#Glassdoor function.
+    
+#ZipRecruiter function.
 
 
     
@@ -66,6 +89,10 @@ elif 'simplyhired' in website:
     jobAd = simplyhired(website)
 elif 'dice' in website:
     jobAd = dice(website)
+elif 'monster' in website:
+    jobAd = monster(website)
+elif 'craigslist' in website:
+    jobAd = craigslist(website)
 
 print(jobAd)
     
