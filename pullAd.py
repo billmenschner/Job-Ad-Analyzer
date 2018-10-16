@@ -28,28 +28,45 @@ elif 'ziprecruiter' in website:
     
 #Strip punctuation, make everything lowercase, remove new lines.
 
-clean_job_ad = re.sub(r"""[,.;?!'@#$%&*"()/’:-]|\— #Punctuation to remove.
+clean_job_ad = re.sub(r"""[,.;?!'@#$%&*"()/’:-]|\—|\" #Punctuation to remove.
                            """,
                            " ", #Replace with a single space.
                            job_ad, flags = re.VERBOSE).lower().replace('\n', ' ')
 
-#Create single-word list, eliminating articles and other superfluous words.
+#Create list of words used in the ad and a list of words to exclude from
+#analysis.
 
-single_word_list = re.sub(r"""\band\b|\bthe\b|\bof\b|\bis\b|\bto\b|\bin\b|
-    \bfor\b|\ba\b|\bwith\b|\ban\b|\ball\b|\bthat\b|\bas\b|\bit\b|\bits\b|
-    \bon\b|\bat\b""",
-                     " ",
-                     clean_job_ad, flags = re.VERBOSE).split(' ')
+job_word_list = clean_job_ad.split(' ')
+job_word_list = list(filter(None, job_word_list))
+
+excluded_words = ('and', 'the', 'of', 'is', 'to', 'in', 'for', 'a', 'as', 'or',
+                  'with', 'on', 'by', 'their', 'be', 'an', 'have', 'that',
+                  'but', 'are')
+
+
+#Create single-word list, eliminating articles and other superfluous words
+single_word_list = [word for word in job_word_list if word not in excluded_words]
+
+
+
+#single_word_list = re.sub(r"""\band\b|\bthe\b|\bof\b|\bis\b|\bto\b|\bin\b|
+#    \bfor\b|\ba\b|\bwith\b|\ban\b|\ball\b|\bthat\b|\bas\b|\bit\b|\bits\b|
+#    \bon\b|\bat\b""",
+#                     " ",
+#                     clean_job_ad, flags = re.VERBOSE).split(' ')
 
 #Create double-word and triple-word lists.
 
-job_ad_list = clean_job_ad.split()
 doublet_list = []
-for word in job_ad_list:
-    doublet = word + ' ' + job_ad_list[job_ad_list.index(word) + 1]
-    doublet_list.append(doublet)
+word_index = 0
+while word_index < len(job_word_list) - 1:
+    for word in job_word_list:
+        doublet = word + ' ' + job_word_list[word_index + 1]
+        doublet_list.append(doublet)
+        word_index += 1
 
-print(Counter(doublet_list))
+
+print(job_word_list)
     
 
    
