@@ -3,28 +3,54 @@
 # pullAd.py -- Asks users to paste address of job ad. Once pasted, determines
 # the site of the ad, determines type of job, and pulls text description of job.
 
-import pandas as pd, numpy as np, matplotlib.pyplot as plt, seaborn as sns, re
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import re
 from JobSites import *
 from collections import Counter
+from urllib.parse import urlparse
 
 #User enters websites
 website = input('Paste the website of the job ad: ')
 
-#Determines website and pulls ad text from it.
-if 'indeed' in website:
-    job_ad = indeed(website)
-elif 'careerbuilder' in website:
-    job_ad = careerbuilder(website)
-elif 'simplyhired' in website:
-    job_ad = simplyhired(website)
-elif 'dice' in website:
-    job_ad = dice(website)
-elif 'monster' in website:
-    job_ad = monster(website)
+parsed_website = urlparse(website)
+print(parsed_website)
+craigslist_key = re.compile(r'.*?/.craigslist/.com')
+if craigslist_key.match(parsed_website.netloc):
+    print(True)
+else:
+    print(False)
+
+job_websites = {'www.indeed.com': indeed, 'www.careerbuilder.com': careerbuilder,
+                'www.simplyhired.com': simplyhired, 'www.dice.com': dice,
+                'www.monster.com': monster, craigslist: craigslist,
+                'ziprecruiter': ziprecruiter}
+
+if parsed_website.netloc in job_websites:
+    job_ad = job_websites[parsed_website.netloc](website)
 elif 'craigslist' in website:
     job_ad = craigslist(website)
-elif 'ziprecruiter' in website:
-    job_ad = ziprecruiter(website)
+else:
+    print("""Oops, there was a problem. Either the website is not yet supported,
+          or we don't recognize this as a website.""")
+
+##Determines website and pulls ad text from it.
+#if 'indeed' in website:
+#    job_ad = indeed(website)
+#elif 'careerbuilder' in website:
+#    job_ad = careerbuilder(website)
+#elif 'simplyhired' in website:
+#    job_ad = simplyhired(website)
+#elif 'dice' in website:
+#    job_ad = dice(website)
+#elif 'monster' in website:
+#    job_ad = monster(website)
+#elif 'craigslist' in website:
+#    job_ad = craigslist(website)
+#elif 'ziprecruiter' in website:
+#    job_ad = ziprecruiter(website)
     
 #Strip punctuation, make everything lowercase, remove new lines.
 
@@ -58,15 +84,15 @@ single_word_list = [word for word in job_word_list if word not in excluded_words
 #Create double-word and triple-word lists.
 
 doublet_list = []
-word_index = 0
-while word_index < len(job_word_list) - 1:
-    for word in job_word_list:
-        doublet = word + ' ' + job_word_list[word_index + 1]
+word_index = 1
+for word in job_word_list:
+    if word_index < len(job_word_list):
+        doublet = word + ' ' + job_word_list[word_index]
         doublet_list.append(doublet)
         word_index += 1
-
-
-print(job_word_list)
+#
+#
+#print(job_word_list)
     
 
    
