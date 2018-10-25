@@ -12,45 +12,25 @@ from JobSites import *
 from collections import Counter
 from urllib.parse import urlparse
 
-#User enters websites
+#User enters website, website is parsed, and website name is extracted
 website = input('Paste the website of the job ad: ')
-
 parsed_website = urlparse(website)
-print(parsed_website)
-craigslist_key = re.compile(r'.*?/.craigslist/.com')
-if craigslist_key.match(parsed_website.netloc):
-    print(True)
-else:
-    print(False)
+site_name = parsed_website.netloc.split('.')[1]
 
-job_websites = {'www.indeed.com': indeed, 'www.careerbuilder.com': careerbuilder,
-                'www.simplyhired.com': simplyhired, 'www.dice.com': dice,
-                'www.monster.com': monster, craigslist: craigslist,
+#Dictionary of job websites
+job_websites = {'indeed': indeed, 'careerbuilder': careerbuilder,
+                'simplyhired': simplyhired, 'dice': dice,
+                'monster': monster, 'craigslist': craigslist,
                 'ziprecruiter': ziprecruiter}
 
-if parsed_website.netloc in job_websites:
-    job_ad = job_websites[parsed_website.netloc](website)
-elif 'craigslist' in website:
-    job_ad = craigslist(website)
+#Search for job website in dictionary and return code for extracting ad text.
+#If site name is not in the dictionary, returns a message. Need to determine
+#what happens besides the message if the website isn't recognized.
+if site_name in job_websites:
+    job_ad = job_websites[site_name](website)
 else:
     print("""Oops, there was a problem. Either the website is not yet supported,
           or we don't recognize this as a website.""")
-
-##Determines website and pulls ad text from it.
-#if 'indeed' in website:
-#    job_ad = indeed(website)
-#elif 'careerbuilder' in website:
-#    job_ad = careerbuilder(website)
-#elif 'simplyhired' in website:
-#    job_ad = simplyhired(website)
-#elif 'dice' in website:
-#    job_ad = dice(website)
-#elif 'monster' in website:
-#    job_ad = monster(website)
-#elif 'craigslist' in website:
-#    job_ad = craigslist(website)
-#elif 'ziprecruiter' in website:
-#    job_ad = ziprecruiter(website)
     
 #Strip punctuation, make everything lowercase, remove new lines.
 
@@ -73,14 +53,6 @@ excluded_words = ('and', 'the', 'of', 'is', 'to', 'in', 'for', 'a', 'as', 'or',
 #Create single-word list, eliminating articles and other superfluous words
 single_word_list = [word for word in job_word_list if word not in excluded_words]
 
-
-
-#single_word_list = re.sub(r"""\band\b|\bthe\b|\bof\b|\bis\b|\bto\b|\bin\b|
-#    \bfor\b|\ba\b|\bwith\b|\ban\b|\ball\b|\bthat\b|\bas\b|\bit\b|\bits\b|
-#    \bon\b|\bat\b""",
-#                     " ",
-#                     clean_job_ad, flags = re.VERBOSE).split(' ')
-
 #Create double-word and triple-word lists.
 
 doublet_list = []
@@ -90,12 +62,15 @@ for word in job_word_list:
         doublet = word + ' ' + job_word_list[word_index]
         doublet_list.append(doublet)
         word_index += 1
-#
-#
-#print(job_word_list)
-    
 
-   
+triplet_list = []
+word_index = 1
+for word in job_word_list:
+    if word_index < len(job_word_list) - 1:
+        triplet = word + ' ' + job_word_list[word_index] + ' ' + job_word_list[word_index + 1]
+        triplet_list.append(triplet)
+        word_index += 1
+        
 # Very basic word count list. This kind of works, but it would be better to not
 #see words repeated. Also need to get rid of duplicate words. Also need to look
 #into multi-word combos.
